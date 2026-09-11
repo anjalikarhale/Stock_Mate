@@ -8,6 +8,7 @@ import Register from "./pages/Register";
 import ProtectedRoute from "./components/common/ProtectedRoute";
 import Profile from "./pages/Profile";
 import Settings from "./pages/Settings";
+import Learn from "./pages/Learn";
 
 function App() {
   return (
@@ -23,14 +24,9 @@ function App() {
             <Route path="/" element={<Dashboard />} />
 
             <Route
-              path="/learn"
-              element={
-                <PlaceholderPage
-                  title="Learn"
-                  description="Master the stock market from basics to advanced concepts."
-                />
-              }
-            />
+  path="/learn"
+  element={<Learn />}
+/>
 
             <Route
               path="/markets"
