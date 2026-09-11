@@ -6,6 +6,7 @@ import PlaceholderPage from "./pages/PlaceholderPage";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import ProtectedRoute from "./components/common/ProtectedRoute";
+import Profile from "./pages/Profile";
 
 function App() {
   return (
@@ -80,15 +81,7 @@ function App() {
               }
             />
 
-            <Route
-              path="/profile"
-              element={
-                <PlaceholderPage
-                  title="Profile"
-                  description="Manage your StockMate profile."
-                />
-              }
-            />
+            <Route path="/profile" element={<Profile />} />
 
             <Route
               path="/settings"
