@@ -1,8 +1,31 @@
-const user = JSON.parse(
-  localStorage.getItem("stockmate_user") || "{}"
-);
+import { useEffect, useState } from "react";
+import { getCurrentUser } from "../services/userApi";
+
+interface User {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  wallet?: {
+    balance: string;
+  };
+}
 
 function Dashboard() {
+  const [user, setUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    const loadUser = async () => {
+      const result = await getCurrentUser();
+
+      if (result.user) {
+        setUser(result.user);
+      }
+    };
+
+    loadUser();
+  }, []);
+
   return (
     <div>
       {/* Welcome Section */}
@@ -12,7 +35,7 @@ function Dashboard() {
         </p>
 
         <h1 className="text-3xl font-bold">
-          Welcome back, {user.name || "Student"}!
+          Welcome back, {user?.name || "Student"}!
         </h1>
 
         <p className="mt-2 text-slate-400">
@@ -22,15 +45,11 @@ function Dashboard() {
 
       {/* Stats */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-
-        {/* Virtual Balance */}
         <div className="rounded-2xl border border-slate-800 bg-slate-900 p-5">
-          <p className="text-sm text-slate-400">
-            Virtual Balance
-          </p>
+          <p className="text-sm text-slate-400">Virtual Balance</p>
 
           <h2 className="mt-2 text-2xl font-bold">
-            ₹1,00,000
+            ₹{Number(user?.wallet?.balance || 0).toLocaleString("en-IN")}
           </h2>
 
           <p className="mt-2 text-sm text-emerald-400">
@@ -38,14 +57,11 @@ function Dashboard() {
           </p>
         </div>
 
-        {/* Portfolio Value */}
         <div className="rounded-2xl border border-slate-800 bg-slate-900 p-5">
-          <p className="text-sm text-slate-400">
-            Portfolio Value
-          </p>
+          <p className="text-sm text-slate-400">Portfolio Value</p>
 
           <h2 className="mt-2 text-2xl font-bold">
-            ₹1,00,000
+            ₹{Number(user?.wallet?.balance || 0).toLocaleString("en-IN")}
           </h2>
 
           <p className="mt-2 text-sm text-slate-400">
@@ -53,11 +69,8 @@ function Dashboard() {
           </p>
         </div>
 
-        {/* Learning XP */}
         <div className="rounded-2xl border border-slate-800 bg-slate-900 p-5">
-          <p className="text-sm text-slate-400">
-            Learning XP
-          </p>
+          <p className="text-sm text-slate-400">Learning XP</p>
 
           <h2 className="mt-2 text-2xl font-bold">
             0 XP
@@ -68,11 +81,8 @@ function Dashboard() {
           </p>
         </div>
 
-        {/* Learning Streak */}
         <div className="rounded-2xl border border-slate-800 bg-slate-900 p-5">
-          <p className="text-sm text-slate-400">
-            Learning Streak
-          </p>
+          <p className="text-sm text-slate-400">Learning Streak</p>
 
           <h2 className="mt-2 text-2xl font-bold">
             🔥 0 Days
@@ -82,12 +92,10 @@ function Dashboard() {
             Start learning today
           </p>
         </div>
-
       </div>
 
       {/* Continue Learning */}
       <div className="mt-8 rounded-2xl border border-slate-800 bg-slate-900 p-6">
-
         <p className="text-sm font-medium text-emerald-400">
           CONTINUE LEARNING
         </p>
@@ -100,7 +108,6 @@ function Dashboard() {
           Start your journey by understanding how the stock market works.
         </p>
 
-        {/* Progress Bar */}
         <div className="mt-5 h-2 overflow-hidden rounded-full bg-slate-800">
           <div className="h-full w-0 rounded-full bg-emerald-500" />
         </div>
@@ -108,7 +115,6 @@ function Dashboard() {
         <p className="mt-2 text-sm text-slate-500">
           0% completed
         </p>
-
       </div>
     </div>
   );

@@ -3,6 +3,7 @@ import cors from "cors";
 import "dotenv/config";
 import prisma from "./config/prisma";
 import authRoutes from "./routes/authRoutes";
+import userRoutes from "./routes/userRoutes";
 import { authenticateToken } from "./middleware/authMiddleware";
 
 
@@ -13,6 +14,7 @@ const PORT = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 app.use("/api/auth", authRoutes);
+app.use("/api/users", userRoutes);
 
 app.get("/api/protected", authenticateToken, (req, res) => {
   res.json({
