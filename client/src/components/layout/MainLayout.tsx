@@ -60,10 +60,9 @@ function MainLayout() {
                 key={item.name}
                 to={item.path}
                 className={({ isActive }) =>
-                  `flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left transition ${
-                    isActive
-                      ? "bg-emerald-500/10 text-emerald-400"
-                      : "text-slate-400 hover:bg-slate-800 hover:text-white"
+                  `flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left transition ${isActive
+                    ? "bg-emerald-500/10 text-emerald-400"
+                    : "text-slate-400 hover:bg-slate-800 hover:text-white"
                   }`
                 }
               >
@@ -80,10 +79,9 @@ function MainLayout() {
           <NavLink
             to="/profile"
             className={({ isActive }) =>
-              `flex w-full items-center gap-3 rounded-xl px-4 py-3 transition ${
-                isActive
-                  ? "bg-emerald-500/10 text-emerald-400"
-                  : "text-slate-400 hover:bg-slate-800 hover:text-white"
+              `flex w-full items-center gap-3 rounded-xl px-4 py-3 transition ${isActive
+                ? "bg-emerald-500/10 text-emerald-400"
+                : "text-slate-400 hover:bg-slate-800 hover:text-white"
               }`
             }
           >
@@ -92,12 +90,18 @@ function MainLayout() {
           </NavLink>
 
           {/* Settings */}
-          <button
-            className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-slate-400 transition hover:bg-slate-800 hover:text-white"
+          <NavLink
+            to="/settings"
+            className={({ isActive }) =>
+              `flex w-full items-center gap-3 rounded-xl px-4 py-3 transition ${isActive
+                ? "bg-emerald-500/10 text-emerald-400"
+                : "text-slate-400 hover:bg-slate-800 hover:text-white"
+              }`
+            }
           >
             <Settings className="h-5 w-5" />
             <span>Settings</span>
-          </button>
+          </NavLink>
 
           {/* Logout */}
           <button
