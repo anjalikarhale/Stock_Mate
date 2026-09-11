@@ -4,6 +4,7 @@ import {
   CheckCircle,
   ArrowRight,
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const worlds = [
   {
@@ -41,6 +42,7 @@ const worlds = [
 ];
 
 function Learn() {
+    const navigate = useNavigate();
   return (
     <div>
       {/* Header */}
@@ -138,6 +140,11 @@ function Learn() {
 
                   <button
                     disabled={isLocked}
+                    onClick={() => {
+  if (!isLocked && world.number === 1) {
+    navigate("/learn/world-1/lesson-1");
+  }
+}}
                     className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition ${
                       isLocked
                         ? "cursor-not-allowed bg-slate-800 text-slate-600"

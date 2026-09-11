@@ -9,6 +9,7 @@ import ProtectedRoute from "./components/common/ProtectedRoute";
 import Profile from "./pages/Profile";
 import Settings from "./pages/Settings";
 import Learn from "./pages/Learn";
+import Lesson from "./pages/Lesson";
 
 function App() {
   return (
@@ -22,6 +23,11 @@ function App() {
         <Route element={<ProtectedRoute />}>
           <Route element={<MainLayout />}>
             <Route path="/" element={<Dashboard />} />
+
+            <Route
+  path="/learn/world-1/lesson-1"
+  element={<Lesson />}
+/>
 
             <Route
   path="/learn"
