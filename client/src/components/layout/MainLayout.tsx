@@ -76,13 +76,22 @@ function MainLayout() {
 
         {/* Bottom section */}
         <div className="absolute bottom-5 left-5 right-5 space-y-2">
-          <button
-            className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-slate-400 transition hover:bg-slate-800 hover:text-white"
+          {/* Profile */}
+          <NavLink
+            to="/profile"
+            className={({ isActive }) =>
+              `flex w-full items-center gap-3 rounded-xl px-4 py-3 transition ${
+                isActive
+                  ? "bg-emerald-500/10 text-emerald-400"
+                  : "text-slate-400 hover:bg-slate-800 hover:text-white"
+              }`
+            }
           >
             <User className="h-5 w-5" />
             <span>Profile</span>
-          </button>
+          </NavLink>
 
+          {/* Settings */}
           <button
             className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-slate-400 transition hover:bg-slate-800 hover:text-white"
           >
@@ -90,6 +99,7 @@ function MainLayout() {
             <span>Settings</span>
           </button>
 
+          {/* Logout */}
           <button
             onClick={handleLogout}
             className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-red-400 transition hover:bg-red-500/10 hover:text-red-300"
