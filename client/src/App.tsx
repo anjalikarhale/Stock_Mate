@@ -3,11 +3,16 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import MainLayout from "./components/layout/MainLayout";
 import Dashboard from "./pages/Dashboard";
 import PlaceholderPage from "./pages/PlaceholderPage";
+import Login from "./pages/Login";
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
+        {/* Authentication routes */}
+        <Route path="/login" element={<Login />} />
+
+        {/* Main application routes */}
         <Route element={<MainLayout />}>
           <Route path="/" element={<Dashboard />} />
 
