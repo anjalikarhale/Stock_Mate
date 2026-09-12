@@ -46,6 +46,7 @@ export const learningWorlds: LearningWorld[] = [
       {
         id: "lesson-2",
         worldId: "world-1",
+        prerequisiteLessonId: "lesson-1",
         title: "How Buying and Selling Works",
         description:
           "Learn how investors buy and sell stocks and how orders work.",
@@ -135,6 +136,7 @@ export const learningWorlds: LearningWorld[] = [
       {
         id: "lesson-4",
         worldId: "world-2",
+        prerequisiteLessonId: "lesson-3",
         title: "Diversification",
         description:
           "Learn why putting all your money into one investment can be dangerous.",

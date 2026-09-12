@@ -21,19 +21,15 @@ export interface LearningGame {
 export interface Lesson {
   id: string;
   worldId: string;
+  prerequisiteLessonId?: string;
   title: string;
   description: string;
   concept: string;
   order: number;
-
   sections: LessonSection[];
-
   types: LessonType[];
-
   game?: LearningGame;
-
   xp: number;
-
   completed: boolean;
 }
 
@@ -42,9 +38,7 @@ export interface LearningWorld {
   title: string;
   description: string;
   order: number;
-
   lessons: Lesson[];
-
   locked: boolean;
   completed: boolean;
 }

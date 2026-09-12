@@ -12,9 +12,8 @@ function Learn() {
 
   // Load completed lessons
   useEffect(() => {
-    const completedLessons = getCompletedLessons();
-
-    setCompletedLessons(completedLessons);
+    const savedLessons = getCompletedLessons();
+    setCompletedLessons(savedLessons);
   }, []);
 
   // Total number of lessons
@@ -89,7 +88,7 @@ function Learn() {
 
       {/* Learning Worlds */}
       <div className="space-y-5">
-        {learningWorlds.map((world) => {
+        {learningWorlds.map((world, worldIndex) => {
           // Completed lessons in this world
           const worldCompleted = world.lessons.filter((lesson) =>
             completedLessons.includes(lesson.id)
@@ -103,11 +102,36 @@ function Learn() {
                   (worldCompleted / world.lessons.length) * 100
                 );
 
+          // First world is always unlocked.
+          // Every next world unlocks only when the previous
+          // world has been completely finished.
+          const previousWorld =
+            learningWorlds[worldIndex - 1];
+
+          const previousWorldCompleted =
+            previousWorld?.lessons.every((lesson) =>
+              completedLessons.includes(lesson.id)
+            ) ?? true;
+
+          const worldLocked =
+            worldIndex !== 0 && !previousWorldCompleted;
+
+          // Find first incomplete lesson
+          const firstIncompleteLesson = world.lessons.find(
+            (lesson) => !completedLessons.includes(lesson.id)
+          );
+
+          const worldCompletedFully =
+            world.lessons.length > 0 &&
+            world.lessons.every((lesson) =>
+              completedLessons.includes(lesson.id)
+            );
+
           return (
             <div
               key={world.id}
               className={`rounded-2xl border p-6 transition ${
-                world.locked
+                worldLocked
                   ? "border-slate-800 bg-slate-950/60"
                   : "border-slate-700 bg-slate-900 hover:border-indigo-500/50"
               }`}
@@ -118,12 +142,12 @@ function Learn() {
                   {/* World Icon */}
                   <div
                     className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ${
-                      world.locked
+                      worldLocked
                         ? "bg-slate-800 text-slate-500"
                         : "bg-indigo-500/10 text-indigo-400"
                     }`}
                   >
-                    {world.locked ? (
+                    {worldLocked ? (
                       <Lock size={22} />
                     ) : (
                       <Trophy size={22} />
@@ -143,32 +167,52 @@ function Learn() {
                     <p className="mt-1 max-w-2xl text-sm text-slate-400">
                       {world.description}
                     </p>
+
+                    {/* Locked Message */}
+                    {worldLocked && previousWorld && (
+                      <p className="mt-2 text-xs text-slate-500">
+                        Complete {previousWorld.title} to unlock
+                        this world.
+                      </p>
+                    )}
                   </div>
                 </div>
 
-                {/* Start / Locked Button */}
+                {/* Start / Continue / Locked Button */}
                 <button
-                  disabled={world.locked}
+                  type="button"
+                  disabled={worldLocked}
                   onClick={() => {
-                    if (
-                      !world.locked &&
-                      world.lessons.length > 0
-                    ) {
+                    if (worldLocked) {
+                      return;
+                    }
+
+                    if (firstIncompleteLesson) {
                       navigate(
-                        `/learn/${world.id}/${world.lessons[0].id}`
+                        `/learn/${world.id}/${firstIncompleteLesson.id}`
                       );
                     }
                   }}
                   className={`inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold transition ${
-                    world.locked
+                    worldLocked
                       ? "cursor-not-allowed bg-slate-800 text-slate-500"
                       : "bg-indigo-500 text-white hover:bg-indigo-400"
                   }`}
                 >
-                  {world.locked ? (
+                  {worldLocked ? (
                     <>
                       <Lock size={16} />
                       Locked
+                    </>
+                  ) : worldCompletedFully ? (
+                    <>
+                      <Trophy size={16} />
+                      Completed
+                    </>
+                  ) : worldCompleted > 0 ? (
+                    <>
+                      <Play size={16} />
+                      Continue World
                     </>
                   ) : (
                     <>
@@ -180,7 +224,7 @@ function Learn() {
               </div>
 
               {/* World Progress */}
-              {!world.locked && (
+              {!worldLocked && (
                 <div className="mt-6">
                   <div className="mb-2 flex justify-between text-xs text-slate-400">
                     <span>
