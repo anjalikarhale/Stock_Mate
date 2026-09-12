@@ -1,167 +1,208 @@
-import {
-  BookOpen,
-  Lock,
-  CheckCircle,
-  ArrowRight,
-} from "lucide-react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { BookOpen, Lock, Play, Trophy } from "lucide-react";
 
-const worlds = [
-  {
-    number: 1,
-    title: "Stock Market Basics",
-    description:
-      "Learn what stocks are, how markets work, and the basic terms every investor should know.",
-    lessons: 8,
-    status: "available",
-  },
-  {
-    number: 2,
-    title: "Smart Investing",
-    description:
-      "Understand investing, diversification, risk, returns, mutual funds, ETFs and more.",
-    lessons: 10,
-    status: "locked",
-  },
-  {
-    number: 3,
-    title: "Fundamental Analysis",
-    description:
-      "Learn how to analyze companies using financial statements, ratios and valuation.",
-    lessons: 12,
-    status: "locked",
-  },
-  {
-    number: 4,
-    title: "Technical Analysis",
-    description:
-      "Master charts, candlesticks, trends, indicators and price action.",
-    lessons: 12,
-    status: "locked",
-  },
-];
+import { learningWorlds } from "../data/learningData";
+import { getCompletedLessons } from "../services/learningProgress";
 
 function Learn() {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
+
+  const [completedLessons, setCompletedLessons] = useState<string[]>([]);
+
+  // Load completed lessons
+  useEffect(() => {
+    const completedLessons = getCompletedLessons();
+
+    setCompletedLessons(completedLessons);
+  }, []);
+
+  // Total number of lessons
+  const totalLessons = learningWorlds.reduce(
+    (total, world) => total + world.lessons.length,
+    0
+  );
+
+  // Total completed lessons
+  const completedLessonCount = learningWorlds.reduce(
+    (total, world) =>
+      total +
+      world.lessons.filter((lesson) =>
+        completedLessons.includes(lesson.id)
+      ).length,
+    0
+  );
+
+  // Overall progress
+  const progress =
+    totalLessons === 0
+      ? 0
+      : Math.round(
+          (completedLessonCount / totalLessons) * 100
+        );
+
   return (
-    <div>
+    <div className="space-y-8">
       {/* Header */}
-      <div className="mb-8">
-        <p className="text-sm font-medium text-emerald-400">
-          YOUR LEARNING JOURNEY
+      <div>
+        <p className="text-sm font-medium text-indigo-400">
+          LEARNING HUB
         </p>
 
-        <h1 className="mt-2 text-3xl font-bold">
-          Learn the Stock Market
+        <h1 className="mt-2 text-3xl font-bold text-white">
+          Master the Market
         </h1>
 
-        <p className="mt-2 max-w-2xl text-slate-400">
-          Complete interactive worlds, earn XP, unlock achievements,
-          and build the confidence to understand the real market.
+        <p className="mt-2 text-slate-400">
+          Learn concepts, play simulations, make decisions and
+          build real market skills.
         </p>
       </div>
 
-      {/* Progress */}
-      <div className="mb-8 rounded-2xl border border-slate-800 bg-slate-900 p-6">
+      {/* Overall Progress */}
+      <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
         <div className="flex items-center justify-between">
           <div>
             <p className="text-sm text-slate-400">
               Overall Progress
             </p>
 
-            <h2 className="mt-1 text-2xl font-bold">
-              Level 1
-            </h2>
+            <p className="mt-1 text-2xl font-bold text-white">
+              {progress}%
+            </p>
           </div>
 
-          <div className="text-right">
-            <p className="text-2xl font-bold text-emerald-400">
-              0%
-            </p>
-
-            <p className="text-sm text-slate-500">
-              0 / 42 lessons
-            </p>
+          <div className="flex items-center gap-2 text-sm text-slate-400">
+            <BookOpen size={18} />
+            {completedLessonCount}/{totalLessons} lessons
           </div>
         </div>
 
-        <div className="mt-5 h-2 overflow-hidden rounded-full bg-slate-800">
-          <div className="h-full w-0 rounded-full bg-emerald-500" />
+        {/* Progress Bar */}
+        <div className="mt-4 h-2 overflow-hidden rounded-full bg-slate-800">
+          <div
+            className="h-full rounded-full bg-indigo-500 transition-all duration-500"
+            style={{ width: `${progress}%` }}
+          />
         </div>
       </div>
 
-      {/* Worlds */}
-      <div>
-        <div className="mb-5 flex items-center gap-2">
-          <BookOpen className="h-5 w-5 text-emerald-400" />
+      {/* Learning Worlds */}
+      <div className="space-y-5">
+        {learningWorlds.map((world) => {
+          // Completed lessons in this world
+          const worldCompleted = world.lessons.filter((lesson) =>
+            completedLessons.includes(lesson.id)
+          ).length;
 
-          <h2 className="text-xl font-semibold">
-            Learning Worlds
-          </h2>
-        </div>
+          // World progress
+          const worldProgress =
+            world.lessons.length === 0
+              ? 0
+              : Math.round(
+                  (worldCompleted / world.lessons.length) * 100
+                );
 
-        <div className="grid gap-5 md:grid-cols-2">
-          {worlds.map((world) => {
-            const isLocked = world.status === "locked";
-
-            return (
-              <div
-                key={world.number}
-                className={`rounded-2xl border p-6 transition ${
-                  isLocked
-                    ? "border-slate-800 bg-slate-900/60"
-                    : "border-emerald-500/30 bg-slate-900 hover:border-emerald-500/60"
-                }`}
-              >
-                <div className="flex items-start justify-between">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-500/10 text-lg font-bold text-emerald-400">
-                    {world.number}
-                  </div>
-
-                  {isLocked ? (
-                    <Lock className="h-5 w-5 text-slate-600" />
-                  ) : (
-                    <CheckCircle className="h-5 w-5 text-emerald-400" />
-                  )}
-                </div>
-
-                <h3 className="mt-5 text-xl font-semibold">
-                  {world.title}
-                </h3>
-
-                <p className="mt-2 text-sm leading-6 text-slate-400">
-                  {world.description}
-                </p>
-
-                <div className="mt-5 flex items-center justify-between">
-                  <span className="text-sm text-slate-500">
-                    {world.lessons} lessons
-                  </span>
-
-                  <button
-                    disabled={isLocked}
-                    onClick={() => {
-  if (!isLocked && world.number === 1) {
-    navigate("/learn/world-1/lesson-1");
-  }
-}}
-                    className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition ${
-                      isLocked
-                        ? "cursor-not-allowed bg-slate-800 text-slate-600"
-                        : "bg-emerald-600 text-white hover:bg-emerald-500"
+          return (
+            <div
+              key={world.id}
+              className={`rounded-2xl border p-6 transition ${
+                world.locked
+                  ? "border-slate-800 bg-slate-950/60"
+                  : "border-slate-700 bg-slate-900 hover:border-indigo-500/50"
+              }`}
+            >
+              <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+                {/* World Information */}
+                <div className="flex gap-4">
+                  {/* World Icon */}
+                  <div
+                    className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ${
+                      world.locked
+                        ? "bg-slate-800 text-slate-500"
+                        : "bg-indigo-500/10 text-indigo-400"
                     }`}
                   >
-                    {isLocked ? "Locked" : "Start World"}
-
-                    {!isLocked && (
-                      <ArrowRight className="h-4 w-4" />
+                    {world.locked ? (
+                      <Lock size={22} />
+                    ) : (
+                      <Trophy size={22} />
                     )}
-                  </button>
+                  </div>
+
+                  {/* World Details */}
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-wide text-indigo-400">
+                      World {world.order}
+                    </p>
+
+                    <h2 className="mt-1 text-xl font-bold text-white">
+                      {world.title}
+                    </h2>
+
+                    <p className="mt-1 max-w-2xl text-sm text-slate-400">
+                      {world.description}
+                    </p>
+                  </div>
                 </div>
+
+                {/* Start / Locked Button */}
+                <button
+                  disabled={world.locked}
+                  onClick={() => {
+                    if (
+                      !world.locked &&
+                      world.lessons.length > 0
+                    ) {
+                      navigate(
+                        `/learn/${world.id}/${world.lessons[0].id}`
+                      );
+                    }
+                  }}
+                  className={`inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold transition ${
+                    world.locked
+                      ? "cursor-not-allowed bg-slate-800 text-slate-500"
+                      : "bg-indigo-500 text-white hover:bg-indigo-400"
+                  }`}
+                >
+                  {world.locked ? (
+                    <>
+                      <Lock size={16} />
+                      Locked
+                    </>
+                  ) : (
+                    <>
+                      <Play size={16} />
+                      Start World
+                    </>
+                  )}
+                </button>
               </div>
-            );
-          })}
-        </div>
+
+              {/* World Progress */}
+              {!world.locked && (
+                <div className="mt-6">
+                  <div className="mb-2 flex justify-between text-xs text-slate-400">
+                    <span>
+                      {worldCompleted}/{world.lessons.length} lessons
+                    </span>
+
+                    <span>{worldProgress}%</span>
+                  </div>
+
+                  <div className="h-1.5 overflow-hidden rounded-full bg-slate-800">
+                    <div
+                      className="h-full rounded-full bg-indigo-500 transition-all duration-500"
+                      style={{
+                        width: `${worldProgress}%`,
+                      }}
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
     </div>
   );

@@ -1,124 +1,230 @@
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import {
   ArrowLeft,
   ArrowRight,
   BookOpen,
-  CheckCircle,
+  Gamepad2,
 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+
+import { learningWorlds } from "../data/learningData";
+import {
+  completeLesson,
+  getCompletedLessons,
+} from "../services/learningProgress";
 
 function Lesson() {
-    const navigate = useNavigate();
+  const { worldId, lessonId } = useParams();
+  const navigate = useNavigate();
+
+  const [completed, setCompleted] = useState(false);
+
+  const world = learningWorlds.find(
+    (item) => item.id === worldId
+  );
+
+  const lesson = world?.lessons.find(
+    (item) => item.id === lessonId
+  );
+
+  // Check whether the current lesson is completed
+  useEffect(() => {
+    if (!lessonId) return;
+
+    const completedLessons = getCompletedLessons();
+
+    setCompleted(completedLessons.includes(lessonId));
+  }, [lessonId]);
+
+  // Handle invalid lesson
+  if (!world || !lesson) {
+    return (
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-white">
+            Lesson not found
+          </h1>
+
+          <button
+            onClick={() => navigate("/learn")}
+            className="mt-4 rounded-xl bg-indigo-500 px-5 py-3 text-sm font-semibold text-white hover:bg-indigo-400"
+          >
+            Back to Learning
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Current lesson position
+  const currentIndex = world.lessons.findIndex(
+    (item) => item.id === lesson.id
+  );
+
+  const previousLesson = world.lessons[currentIndex - 1];
+  const nextLesson = world.lessons[currentIndex + 1];
+
+  // Mark lesson as completed
+  const markLessonComplete = () => {
+    if (!lessonId) return;
+
+    completeLesson(lessonId);
+
+    setCompleted(true);
+  };
+
   return (
-    <div className="mx-auto max-w-4xl">
+    <div className="mx-auto max-w-4xl space-y-8">
       {/* Header */}
-      <div className="mb-8">
-        <p className="text-sm font-medium text-emerald-400">
-          WORLD 1 • LESSON 1
+      <div>
+        <button
+          onClick={() => navigate("/learn")}
+          className="mb-5 inline-flex items-center gap-2 text-sm text-slate-400 hover:text-white"
+        >
+          <ArrowLeft size={16} />
+          Back to Worlds
+        </button>
+
+        <p className="text-sm font-medium text-indigo-400">
+          WORLD {world.order} • LESSON {lesson.order}
         </p>
 
-        <h1 className="mt-2 text-3xl font-bold">
-          What is the Stock Market?
+        <h1 className="mt-2 text-3xl font-bold text-white">
+          {lesson.title}
         </h1>
 
         <p className="mt-2 text-slate-400">
-          Let's understand the foundation of investing before
-          entering the market.
+          {lesson.description}
         </p>
       </div>
 
-      {/* Lesson Card */}
-      <div className="rounded-2xl border border-slate-800 bg-slate-900 p-8">
-        <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-xl bg-emerald-500/10">
-          <BookOpen className="h-7 w-7 text-emerald-400" />
-        </div>
-
-        <h2 className="text-2xl font-bold">
-          What is a Stock?
-        </h2>
-
-        <p className="mt-4 leading-7 text-slate-300">
-          A stock represents a small ownership share in a company.
-          When you buy a company's stock, you become a shareholder
-          of that company.
+      {/* Concept Card */}
+      <div className="rounded-2xl border border-indigo-500/20 bg-indigo-500/5 p-5">
+        <p className="text-xs font-semibold uppercase tracking-wide text-indigo-400">
+          Concept
         </p>
 
-        <div className="mt-6 rounded-xl border border-slate-800 bg-slate-950 p-5">
-          <p className="font-semibold text-emerald-400">
-            Simple Example
-          </p>
-
-          <p className="mt-2 leading-7 text-slate-400">
-            Imagine a company is divided into 1,00,000 shares.
-            If you own 1,000 shares, you own a small portion of
-            that company.
-          </p>
-        </div>
-
-        <h2 className="mt-8 text-2xl font-bold">
-          Why do companies issue stocks?
-        </h2>
-
-        <p className="mt-4 leading-7 text-slate-300">
-          Companies can raise money by selling shares to investors.
-          They can use this capital to expand their business,
-          develop products, repay debt, or fund other activities.
+        <p className="mt-2 text-lg font-semibold text-white">
+          {lesson.concept}
         </p>
 
-        <div className="mt-6 grid gap-4 md:grid-cols-3">
-          <div className="rounded-xl bg-slate-800 p-4">
-            <p className="font-semibold">Company</p>
-            <p className="mt-1 text-sm text-slate-400">
-              Raises capital
-            </p>
-          </div>
+        <p className="mt-1 text-sm text-slate-400">
+          +{lesson.xp} XP on completion
+        </p>
+      </div>
 
-          <div className="rounded-xl bg-slate-800 p-4">
-            <p className="font-semibold">Investor</p>
-            <p className="mt-1 text-sm text-slate-400">
-              Gets ownership
-            </p>
-          </div>
+      {/* Lesson Sections */}
+      <div className="space-y-5">
+        {lesson.sections.map((section) => (
+          <section
+            key={section.title}
+            className="rounded-2xl border border-slate-800 bg-slate-900 p-6"
+          >
+            <div className="flex items-center gap-3">
+              <BookOpen
+                size={20}
+                className="text-indigo-400"
+              />
 
-          <div className="rounded-xl bg-slate-800 p-4">
-            <p className="font-semibold">Market</p>
-            <p className="mt-1 text-sm text-slate-400">
-              Enables trading
+              <h2 className="text-xl font-bold text-white">
+                {section.title}
+              </h2>
+            </div>
+
+            <p className="mt-4 leading-7 text-slate-300">
+              {section.content}
             </p>
+          </section>
+        ))}
+      </div>
+
+      {/* Game */}
+      {lesson.game && (
+        <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-6">
+          <div className="flex items-start gap-4">
+            <div className="rounded-xl bg-emerald-500/10 p-3 text-emerald-400">
+              <Gamepad2 size={24} />
+            </div>
+
+            <div className="flex-1">
+              <p className="text-xs font-semibold uppercase tracking-wide text-emerald-400">
+                Interactive Game
+              </p>
+
+              <h2 className="mt-1 text-xl font-bold text-white">
+                {lesson.game.title}
+              </h2>
+
+              <p className="mt-2 text-sm leading-6 text-slate-400">
+                {lesson.game.description}
+              </p>
+
+              <button
+                onClick={() =>
+                  alert(
+                    `Game coming soon: ${lesson.game?.title}`
+                  )
+                }
+                className="mt-4 rounded-xl bg-emerald-500 px-5 py-3 text-sm font-semibold text-white hover:bg-emerald-400"
+              >
+                Play Game
+              </button>
+            </div>
           </div>
         </div>
+      )}
 
-        {/* Key Takeaway */}
-        <div className="mt-8 flex gap-4 rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-5">
-          <CheckCircle className="mt-1 h-5 w-5 shrink-0 text-emerald-400" />
-
-          <div>
-            <p className="font-semibold text-emerald-400">
-              Key Takeaway
-            </p>
-
-            <p className="mt-1 text-sm leading-6 text-slate-400">
-              A stock is a unit of ownership in a company.
-              Buying stocks allows investors to participate in
-              the growth and performance of businesses.
-            </p>
-          </div>
+      {/* Complete Lesson */}
+      <div className="border-t border-slate-800 pt-6">
+        <div className="flex justify-center">
+          <button
+            onClick={markLessonComplete}
+            disabled={completed}
+            className={`rounded-xl px-6 py-3 text-sm font-semibold transition ${
+              completed
+                ? "cursor-default bg-emerald-500/10 text-emerald-400"
+                : "bg-emerald-500 text-white hover:bg-emerald-400"
+            }`}
+          >
+            {completed
+              ? "✓ Lesson Completed"
+              : "Mark Lesson Complete"}
+          </button>
         </div>
       </div>
 
-      {/* Navigation */}
-      <div className="mt-6 flex justify-between">
-        <button className="flex items-center gap-2 rounded-lg border border-slate-700 px-4 py-2 text-slate-400 transition hover:bg-slate-800 hover:text-white">
-          <ArrowLeft className="h-4 w-4" />
+      {/* Lesson Navigation */}
+      <div className="flex items-center justify-between">
+        <button
+          disabled={!previousLesson}
+          onClick={() => {
+            if (previousLesson) {
+              navigate(
+                `/learn/${world.id}/${previousLesson.id}`
+              );
+            }
+          }}
+          className="inline-flex items-center gap-2 rounded-xl border border-slate-700 px-5 py-3 text-sm font-semibold text-slate-300 transition hover:border-slate-500 hover:text-white disabled:cursor-not-allowed disabled:opacity-30"
+        >
+          <ArrowLeft size={16} />
           Previous
         </button>
 
-       <button
-  onClick={() => navigate("/learn")}
-  className="flex items-center gap-2 rounded-lg bg-emerald-600 px-5 py-2 font-medium text-white transition hover:bg-emerald-500"
->
-  Back to Worlds
-  <ArrowRight className="h-4 w-4" />
-</button>
+        <button
+          onClick={() => {
+            if (nextLesson) {
+              navigate(
+                `/learn/${world.id}/${nextLesson.id}`
+              );
+            } else {
+              navigate("/learn");
+            }
+          }}
+          className="inline-flex items-center gap-2 rounded-xl bg-indigo-500 px-5 py-3 text-sm font-semibold text-white transition hover:bg-indigo-400"
+        >
+          {nextLesson ? "Next Lesson" : "Back to Worlds"}
+          <ArrowRight size={16} />
+        </button>
       </div>
     </div>
   );

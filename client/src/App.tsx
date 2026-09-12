@@ -23,11 +23,8 @@ function App() {
         <Route element={<ProtectedRoute />}>
           <Route element={<MainLayout />}>
             <Route path="/" element={<Dashboard />} />
-
-            <Route
-  path="/learn/world-1/lesson-1"
-  element={<Lesson />}
-/>
+            
+<Route path="/learn/:worldId/:lessonId" element={<Lesson />} />
 
             <Route
   path="/learn"
