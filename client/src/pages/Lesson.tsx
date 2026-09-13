@@ -5,6 +5,7 @@ import { learningWorlds } from "../data/learningData";
 import { getCompletedLessons } from "../services/learningProgress";
 import type { LearningWorld, Lesson } from "../types/learning";
 import StockMarketBasicsGame from "../components/learning/StockMarketBasicsGame";
+import FirstTradeGame from "../components/learning/FirstTradeGame";
 
 function LessonPage() {
   const { worldId, lessonId } = useParams<{
@@ -165,6 +166,18 @@ function LessonPage() {
             />
           </section>
         )}
+
+        {lesson.game && lesson.id === "lesson-2" && (
+  <section className="mt-8">
+    <FirstTradeGame
+      lessonId={lesson.id}
+      onMastered={() => {
+        setCompleted(true);
+      }}
+    />
+  </section>
+)}
+
 
         {/* Mastery Status */}
         <section className="mt-8 rounded-2xl border border-slate-800 bg-slate-900 p-6">
