@@ -10,19 +10,26 @@ function Learn() {
 
   const [completedLessons, setCompletedLessons] = useState<string[]>([]);
 
-  // Load completed lessons
   useEffect(() => {
-    const savedLessons = getCompletedLessons();
-    setCompletedLessons(savedLessons);
+    const loadProgress = () => {
+      const savedLessons = getCompletedLessons();
+      setCompletedLessons(savedLessons);
+    };
+
+    loadProgress();
+
+    window.addEventListener("storage", loadProgress);
+
+    return () => {
+      window.removeEventListener("storage", loadProgress);
+    };
   }, []);
 
-  // Total number of lessons
   const totalLessons = learningWorlds.reduce(
     (total, world) => total + world.lessons.length,
     0
   );
 
-  // Total completed lessons
   const completedLessonCount = learningWorlds.reduce(
     (total, world) =>
       total +
@@ -32,13 +39,10 @@ function Learn() {
     0
   );
 
-  // Overall progress
   const progress =
     totalLessons === 0
       ? 0
-      : Math.round(
-          (completedLessonCount / totalLessons) * 100
-        );
+      : Math.round((completedLessonCount / totalLessons) * 100);
 
   return (
     <div className="space-y-8">
@@ -77,7 +81,6 @@ function Learn() {
           </div>
         </div>
 
-        {/* Progress Bar */}
         <div className="mt-4 h-2 overflow-hidden rounded-full bg-slate-800">
           <div
             className="h-full rounded-full bg-indigo-500 transition-all duration-500"
@@ -89,12 +92,10 @@ function Learn() {
       {/* Learning Worlds */}
       <div className="space-y-5">
         {learningWorlds.map((world, worldIndex) => {
-          // Completed lessons in this world
           const worldCompleted = world.lessons.filter((lesson) =>
             completedLessons.includes(lesson.id)
           ).length;
 
-          // World progress
           const worldProgress =
             world.lessons.length === 0
               ? 0
@@ -102,11 +103,11 @@ function Learn() {
                   (worldCompleted / world.lessons.length) * 100
                 );
 
-          // First world is always unlocked.
-          // Every next world unlocks only when the previous
-          // world has been completely finished.
-          const previousWorld =
-            learningWorlds[worldIndex - 1];
+          /*
+           * A world unlocks only when the previous world
+           * has been completely mastered.
+           */
+          const previousWorld = learningWorlds[worldIndex - 1];
 
           const previousWorldCompleted =
             previousWorld?.lessons.every((lesson) =>
@@ -116,7 +117,9 @@ function Learn() {
           const worldLocked =
             worldIndex !== 0 && !previousWorldCompleted;
 
-          // Find first incomplete lesson
+          /*
+           * Find the first lesson that has not yet been mastered.
+           */
           const firstIncompleteLesson = world.lessons.find(
             (lesson) => !completedLessons.includes(lesson.id)
           );
@@ -168,17 +171,25 @@ function Learn() {
                       {world.description}
                     </p>
 
-                    {/* Locked Message */}
                     {worldLocked && previousWorld && (
                       <p className="mt-2 text-xs text-slate-500">
                         Complete {previousWorld.title} to unlock
                         this world.
                       </p>
                     )}
+
+                    {!worldLocked && firstIncompleteLesson && (
+                      <p className="mt-2 text-xs text-slate-500">
+                        Next:
+                        <span className="ml-1 text-slate-300">
+                          {firstIncompleteLesson.title}
+                        </span>
+                      </p>
+                    )}
                   </div>
                 </div>
 
-                {/* Start / Continue / Locked Button */}
+                {/* World Button */}
                 <button
                   type="button"
                   disabled={worldLocked}
