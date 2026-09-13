@@ -4,15 +4,12 @@ import {
   ArrowLeft,
   ArrowRight,
   BookOpen,
-  Gamepad2,
 } from "lucide-react";
 
 import { learningWorlds } from "../data/learningData";
-import {
-  completeLesson,
-  getCompletedLessons,
-} from "../services/learningProgress";
+import { getCompletedLessons } from "../services/learningProgress";
 import type { LearningWorld, Lesson } from "../types/learning";
+import StockMarketBasicsGame from "../components/learning/StockMarketBasicsGame";
 
 function LessonPage() {
   const { worldId, lessonId } = useParams<{
@@ -76,16 +73,10 @@ function LessonPage() {
   const completedLessons = getCompletedLessons();
 
   const nextLessonLocked = Boolean(
-    nextLesson?.prerequisiteLessonId &&
-      !completedLessons.includes(
-        nextLesson.prerequisiteLessonId
-      )
-  );
-
-  const markLessonComplete = () => {
-    completeLesson(lesson.id);
-    setCompleted(true);
-  };
+  nextLesson?.prerequisiteLessonId &&
+    !completed &&
+    !completedLessons.includes(nextLesson.prerequisiteLessonId)
+);
 
   return (
     <div className="min-h-screen bg-slate-950 text-white">
@@ -131,7 +122,6 @@ function LessonPage() {
 
       {/* Main Content */}
       <main className="mx-auto max-w-6xl px-6 py-8">
-
         {/* Core Concept */}
         <section className="mb-8 rounded-2xl border border-slate-800 bg-slate-900 p-6">
           <div className="flex items-center gap-3">
@@ -178,92 +168,64 @@ function LessonPage() {
         </div>
 
         {/* Learning Game */}
-        {lesson.game && (
-          <section className="mt-8 rounded-2xl border border-indigo-500/30 bg-indigo-500/5 p-6">
-            <div className="mb-5 flex items-start gap-4">
-              <div className="rounded-xl bg-indigo-500/10 p-3">
-                <Gamepad2
-                  size={24}
-                  className="text-indigo-400"
-                />
-              </div>
-
-              <div>
-                <p className="text-sm font-medium text-indigo-400">
-                  Learn by Playing
-                </p>
-
-                <h2 className="mt-1 text-2xl font-bold">
-                  {lesson.game.title}
-                </h2>
-
-                <p className="mt-2 text-slate-400">
-                  {lesson.game.description}
-                </p>
-              </div>
-            </div>
-
-            <div className="mb-5 rounded-xl border border-slate-800 bg-slate-950/50 p-4">
-              <p className="text-sm text-slate-400">
-                What you will learn
-              </p>
-
-              <p className="mt-1 font-medium text-white">
-                {lesson.game.concept}
-              </p>
-            </div>
-
-            <button
-              type="button"
-              onClick={() => {
-                alert(
-                  `Game "${lesson.game?.title}" will be added in the next development stage.`
-                );
-              }}
-              className="inline-flex items-center gap-2 rounded-xl bg-indigo-500 px-5 py-3 font-medium text-white transition hover:bg-indigo-400"
-            >
-              <Gamepad2 size={18} />
-              Play Game
-            </button>
-          </section>
-        )}
-
-        {/* Complete Lesson */}
+{lesson.game && lesson.id === "lesson-1" && (
+  <section className="mt-8">
+    <StockMarketBasicsGame
+      lessonId={lesson.id}
+      onMastered={() => {
+        setCompleted(true);
+      }}
+    />
+  </section>
+)}
+        {/* Mastery Status */}
         <section className="mt-8 rounded-2xl border border-slate-800 bg-slate-900 p-6">
-          <div className="flex flex-col items-start justify-between gap-5 sm:flex-row sm:items-center">
-            <div>
-              <h2 className="text-lg font-semibold">
-                {completed
-                  ? "Lesson Completed 🎉"
-                  : "Ready to complete this lesson?"}
-              </h2>
+          <div>
+            <h2 className="text-lg font-semibold">
+              {completed
+                ? "Lesson Mastered 🎉"
+                : "Mastery Challenge Required"}
+            </h2>
 
-              <p className="mt-1 text-sm text-slate-400">
-                Complete this lesson to unlock the next stage
-                of your learning journey.
-              </p>
+            <p className="mt-1 text-sm text-slate-400">
+              {completed
+                ? "You have successfully mastered this lesson."
+                : "Complete the practical challenge and achieve the required mastery score to unlock the next lesson."}
+            </p>
+          </div>
+
+          <div className="mt-5 rounded-xl border border-slate-800 bg-slate-950/50 p-4">
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-slate-400">
+                Required Mastery
+              </span>
+
+              <span className="font-semibold text-yellow-400">
+                70%
+              </span>
             </div>
 
-            <button
-              type="button"
-              onClick={markLessonComplete}
-              disabled={completed}
-              className={`rounded-xl px-5 py-3 font-medium transition ${
-                completed
-                  ? "cursor-not-allowed bg-emerald-500/20 text-emerald-400"
-                  : "bg-emerald-500 text-white hover:bg-emerald-400"
-              }`}
-            >
-              {completed
-                ? "Completed ✓"
-                : `Complete Lesson +${lesson.xp} XP`}
-            </button>
+            <div className="mt-3 h-2 overflow-hidden rounded-full bg-slate-800">
+              <div
+                className={`h-full rounded-full ${
+                  completed
+                    ? "w-full bg-emerald-500"
+                    : "w-0 bg-indigo-500"
+                }`}
+              />
+            </div>
+
+            {!completed && (
+              <p className="mt-3 text-xs text-slate-500">
+                You cannot unlock the next lesson until you pass the
+                practical mastery challenge.
+              </p>
+            )}
           </div>
         </section>
 
         {/* Navigation */}
         <div className="mt-8 flex flex-col justify-between gap-4 sm:flex-row">
-
           {/* Previous Lesson */}
           <button
             type="button"
